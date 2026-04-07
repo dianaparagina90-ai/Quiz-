@@ -46,3 +46,7 @@ section{
 #nextbutton{
     display: none;
 }
+
+#resetBtnContainer{
+    display: none;
+}

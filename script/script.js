@@ -50,7 +50,7 @@
       correctAnswer: "En mystisk soppa"
     }
   ]
-
+// kallar på html element, dom manipuleras i js filen.
   const startBtn = document.getElementById("startBtn");
   const questionContainer = document.getElementById("question");
   const answersContainer = document.getElementById("answers");
@@ -58,61 +58,103 @@
   const scoreResult = document.getElementById("scoreValue");  
   const startSection = document.getElementById("startSection")
   const nextBtn = document.getElementById("nextbutton");
-
+  const resetBtnContainer = document.getElementById("resetBtnContainer");
+  const restartBtn = document.getElementById("resetBtn"); 
+  
+//variabel för att index börjar på 0 och komma åt objekt
   let currentQuestionIndex= 0;
+
+  //hålla koll på score och börja på 0
   let score = 0;
 
+  //variabel för att hålla koll på om användaren har svarat på frågan eller inte
+  let answered = false;
+
+
+
+  //Börja quiz knappen
   startBtn.addEventListener("click", startQuiz);
 
+  //Nästa fråga knappen
+  nextBtn.addEventListener("click",showQuestion);
+
+  //Starta om även i mitten av quizet
+  restartBtn.addEventListener("click", startQuiz);
+
+
+  //Starta quizet, visa första frågan och nollställ score
   function startQuiz(){
     currentQuestionIndex= 0;
     score= 0;
     startSection.style.display="none";
+    resetBtnContainer.style.display="block";
+    scoreResult.textContent = score;
     showQuestion();
   }
 
+
+  //Visa varje fråga i taget
   function showQuestion() {
-  
+     if (currentQuestionIndex >= quiz.length) {
+    showFinalResult(); 
+    return; 
+  }
+//nollställ variabeln för att tillåta svar på nästa fråga
+  answered = false;
+//nollställ resultat och göm nästa knapp tills användaren svarar på frågan
+  resultContainer.textContent = "";
+  nextBtn.style.display = "none";
+  answersContainer.innerHTML = "";
+
+//hämta aktuell fråga och visa den, samt svarsalternativen
     const currentQuestion = quiz[currentQuestionIndex];
     questionContainer.textContent = `Fråga ${currentQuestionIndex + 1}/${quiz.length}: ${currentQuestion.question}`;
     answersContainer.innerHTML = "";
 
-
+    //skapa knappar för varje svarsalternativ och lägg till event listeners
     currentQuestion.options.forEach(option => {
       const answerResult = document.createElement("div");
       answerResult.textContent = option;
 
-      answerResult.addEventListener("click", function () {
+      answerResult.addEventListener("click", function (){ 
+          if (!answered) {
         selectedAnswer(option);
+      }
       });
-
+      
+      // Visa nästa knapp efter att användaren har svarat på frågan
       nextBtn.style.display = "block";
 
       answersContainer.appendChild(answerResult);
     });
-
-    
   }
 
-  //  nextBtn.addEventListener("click", function () {
-  //     showQuestion()});
-
+ 
+  //hantera användarens svar och uppdatera scoren
   function selectedAnswer(optionSelected) {
+      answered = true;
     const currentQuestion = quiz[currentQuestionIndex];
-
+    //jämför det valda svaret med det korrekta svaret och uppdatera resultatet och scoren
     if (optionSelected === currentQuestion.correctAnswer) {
       resultContainer.textContent = "Rätt svar!";
       score++;
-
+      // Visa nästa knapp efter att användaren har svarat på frågan
     } else {
     resultContainer.textContent = `Fel svar! Rätt svar var: ${currentQuestion.correctAnswer}`;
     }
-
+    // Uppdatera scoren på sidan
     scoreResult.textContent = score;
     currentQuestionIndex++;
-    nextBtn.addEventListener("click", function () {
-  showQuestion()});
+   
+    }
 
+// Visa slutresultatet när alla frågor har besvarats
+    function showFinalResult() {
+      questionContainer.textContent = "Quizet är slut!";
+      answersContainer.innerHTML = "";
+      resultContainer.textContent = 
+        `Du fick ${score} av ${quiz.length} rätt!`;
+      nextBtn.style.display = "none";
     }
 
 
