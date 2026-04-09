@@ -1,2 +1,8 @@
 # Quiz-
-Quiz with JavaScript
+
+Quiz med JavaScript
+
+Grupp Medlemmar:
+Diana Paragina
+Felix Hansson
+Filip Norrman
