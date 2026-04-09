@@ -60,6 +60,7 @@
   const nextBtn = document.getElementById("nextbutton");
   const resetBtnContainer = document.getElementById("resetBtnContainer");
   const restartBtn = document.getElementById("resetBtn"); 
+  const scoreContainer = document.getElementById("score");
   
 //variabel för att index börjar på 0 och komma åt objekt
   let currentQuestionIndex= 0;
@@ -68,7 +69,7 @@
   let score = 0;
 
   //variabel för att hålla koll på om användaren har svarat på frågan eller inte
-  let answered = false;
+  let answeredQuestion = false;
 
 
 
@@ -88,6 +89,7 @@
     score= 0;
     startSection.style.display="none";
     resetBtnContainer.style.display="block";
+    scoreContainer.style.display ="block";
     scoreResult.textContent = score;
     showQuestion();
   }
@@ -100,7 +102,7 @@
     return; 
   }
 //nollställ variabeln för att tillåta svar på nästa fråga
-  answered = false;
+  answeredQuestion = false;
 //nollställ resultat och göm nästa knapp tills användaren svarar på frågan
   resultContainer.textContent = "";
   nextBtn.style.display = "none";
@@ -115,36 +117,80 @@
     currentQuestion.options.forEach(option => {
       const answerResult = document.createElement("div");
       answerResult.textContent = option;
+      answerResult.classList.add("answer");
 
       answerResult.addEventListener("click", function (){ 
-          if (!answered) {
+          if (!answeredQuestion) {
         selectedAnswer(option);
       }
       });
       
-      // Visa nästa knapp efter att användaren har svarat på frågan
-      nextBtn.style.display = "block";
-
       answersContainer.appendChild(answerResult);
     });
   }
 
- 
+  // Array med roliga och peppande meddelanden för rätt och fel svar
+  const correctMessages = [
+    "🔥 Snyggt! Du är ett geni!",
+    "😎 Boom! Helt rätt!",
+    "🧠 200 IQ-move!",
+    "🎯 Mitt i prick!",
+    "🚀 Du är ostoppbar!",
+    "👏 Legend-status!"
+];
+
+  const wrongMessages = [
+      "💀 Ajdå... försök igen!",
+      "😬 Nope, inte riktigt...",
+      "🤡 Den där var vild… men fel!",
+      "🐢 Långsamt... och fel.",
+      "🙈 Hoppsan! Inte rätt denna gång"
+  ]
+
+  // Funktion för att hämta ett slumpmässigt meddelande från en array
+  function getRandomMessage(answerType) {
+  return answerType[Math.floor(Math.random() * answerType.length)];
+}
+  
+
   //hantera användarens svar och uppdatera scoren
   function selectedAnswer(optionSelected) {
-      answered = true;
-    const currentQuestion = quiz[currentQuestionIndex];
+      answeredQuestion = true;
+      const currentQuestion = quiz[currentQuestionIndex];
+
+     // hämta alla svarsalternativ (divarna)
+      const allAnswers = answersContainer.children;
+
+  // loopa igenom alla svar
+      for (let i = 0; i < allAnswers.length; i++) {
+        const answerDiv = allAnswers[i];
+        const answerText = answerDiv.textContent;
+
+        if (answerText === currentQuestion.correctAnswer) {
+        answerDiv.classList.add("correct"); // rätt svar blir grönt
+        } else {
+            if (answerText === optionSelected) {
+            answerDiv.classList.add("wrong"); // bara det fel valda svaret blir rött
+          }
+        }
+    }
+
     //jämför det valda svaret med det korrekta svaret och uppdatera resultatet och scoren
     if (optionSelected === currentQuestion.correctAnswer) {
-      resultContainer.textContent = "Rätt svar!";
+      resultContainer.textContent = `Rätt svar! 
+       ${getRandomMessage(correctMessages)}`;
       score++;
-      // Visa nästa knapp efter att användaren har svarat på frågan
+     
     } else {
-    resultContainer.textContent = `Fel svar! Rätt svar var: ${currentQuestion.correctAnswer}`;
+    resultContainer.textContent = `${getRandomMessage(wrongMessages)} Rätt svar var: ${currentQuestion.correctAnswer}`;
     }
     // Uppdatera scoren på sidan
     scoreResult.textContent = score;
     currentQuestionIndex++;
+
+     // Visa nästa knapp efter att användaren har svarat på frågan
+      nextBtn.style.display = "block";
+      scoreContainer.style.display ="block";
    
     }
 
@@ -152,10 +198,44 @@
     function showFinalResult() {
       questionContainer.textContent = "Quizet är slut!";
       answersContainer.innerHTML = "";
+
       resultContainer.textContent = 
-        `Du fick ${score} av ${quiz.length} rätt!`;
+        `Du fick ${score} av ${quiz.length} rätt! ${getFinalMessage(score, quiz.length)}`;
       nextBtn.style.display = "none";
+      scoreContainer.style.display ="none";
     }
+
+    //Lägg rolig text för slutresultat beroende på antal poäng
+
+    function getFinalMessage(scorePoints, total) {
+    const percentage = scorePoints / total;
+
+    switch(true) {
+      case percentage===1:
+        return "👑 WOW! Du är quizets härskare!";
+         
+      case  percentage >= 0.8:
+        return "🔥 Grymt jobbat! Du är nästan ett geni!";
+       
+
+      case percentage >= 0.6:
+        return "😎 Snyggt! Du har koll!";
+        
+
+      case percentage >= 0.4:
+        return "🤔 Helt okej… men du kan bättre!";
+        
+
+      case percentage >= 0.2:
+        return  "😂 Oj… det där var kämpigt!";
+        
+
+      default:
+      "💀 Är du ens från denna planet?"
+      
+    }
+  }
+
 
 
    
